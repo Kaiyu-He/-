@@ -7,7 +7,7 @@
 
 #define SERVER_PORT 1234
 #define BUFFER_SIZE 1024
-#define MAX_CLIENTS 5
+#define MAX_CLIENTS 10
 
 int main() {
     int listen_fd, connect_fd[MAX_CLIENTS];
