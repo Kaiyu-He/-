@@ -1,7 +1,7 @@
 import socket
 import threading
 
-HOST = '192.168.192.137'
+HOST = '10.39.43.221'
 PORT = 1234
 
 
