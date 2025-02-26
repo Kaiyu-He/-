@@ -1,3 +1,4 @@
+import json
 import socket
 
 
@@ -53,17 +54,23 @@ class Server:
         print(f"用户：{name} 登入, 地址{addr}")
         self.users[name] = user
         self.online[name] = True
-
+        self.send_to_all(f"users_online:{json.dumps(self.online)}")
         return name, addr, user
 
     def send_to_users(self, name: str, msg: str):
-        if self.online and name in self.users:
+        if name in self.users and self.online[name]:
             self.users[name].send(msg)
+
+    def send_to_all(self, msg):
+        for name, online in self.online.items():
+            if online:
+                self.send_to_users(name, msg)
 
     def user_close(self, name):
         self.online[name] = False
         user = self.users[name]
         print(f"用户：{user.name} 下线, 地址{user.addr}")
-        user.close()
+        self.users[name].close()
+        self.send_to_all(f"users_online:{json.dumps(self.online)}")
 
 
