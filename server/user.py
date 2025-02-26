@@ -33,3 +33,35 @@ class User:  # 单个用户连接
         """
         msg = self.conn.recv(1024).decode('utf-8')
         return msg
+    def close(self):
+        self.conn.close()
+
+class Server:
+    def __init__(self, host: str, port: int, num_of_user: int):
+        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server_socket.bind((host, port))
+        self.server_socket.listen(num_of_user)
+        self.users: dict[str: User] = {}
+        self.online: dict[str: bool] = {}
+
+    def add_user(self):
+        conn, addr = self.server_socket.accept()
+        user = User(conn, addr)
+        name, addr = user.get_user_name()
+        print(f"用户：{name} 登入, 地址{addr}")
+        self.users[name] = user
+        self.online[name] = True
+
+        return name, addr, user
+
+    def send_to_users(self, name: str, msg: str):
+        if self.online:
+            self.users[name].send(msg)
+
+    def user_close(self, name):
+        self.online[name] = False
+        user = self.users[name]
+        print(f"用户：{user.name} 下线, 地址{user.addr}")
+        user.close()
+
+

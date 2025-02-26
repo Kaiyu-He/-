@@ -8,6 +8,28 @@ class Client:  # 客户端
         print(f"已连接到服务器 {host}:{port}")
         self.name = name  # 用户名称
         self.user_name(name)
+        self.friends = {}
+
+    def get_friends(self) -> list:
+        users = []
+        for user, msgs in self.friends.items():
+            users.append(user)
+        return users
+
+    def get_msg(self, name) -> dict:
+        return self.friends[name]['msg']
+
+
+    def add_friend(self, name):
+        if name not in self.friends:
+            self.friends[name] = {
+                "msg": []
+            }
+
+    def add_msg(self, name, msg):
+        if name not in self.friends:
+            self.add_friend(name)
+        self.friends[name]['msg'].append(msg)
 
     def user_name(self, name):
         self.send_msg(name)
