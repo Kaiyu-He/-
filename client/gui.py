@@ -117,6 +117,7 @@ class ChatClient(QMainWindow):
                 self.update_chat_display()
             elif msg_type == 'users_online':
                 self.online = json.loads(msg)
+                self.update_friends_list()
         except Exception as e:
             print(f"处理消息出错: {e}")
 

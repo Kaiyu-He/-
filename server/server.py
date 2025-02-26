@@ -9,7 +9,6 @@ def handle_users(server, user):
             msg = user.read()
             if not msg:
                 break
-
             msg_type, msg = msg.split(':', 1)
             print(f"收到用户信息 {user.addr}: 类型：{msg_type}, 内容：{msg}")
             if msg_type == 'message':
