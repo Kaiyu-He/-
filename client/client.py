@@ -17,6 +17,8 @@ class Client:  # 客户端
         return users
 
     def get_msg(self, name) -> dict:
+        if name not in self.friends:
+            self.add_friend(name)
         return self.friends[name]['msg']
 
 
@@ -26,7 +28,7 @@ class Client:  # 客户端
                 "msg": []
             }
 
-    def add_msg(self, name, msg):
+    def add_msg(self, name: str, msg: str):
         if name not in self.friends:
             self.add_friend(name)
         self.friends[name]['msg'].append(msg)

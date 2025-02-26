@@ -36,6 +36,8 @@ class User:  # 单个用户连接
     def close(self):
         self.conn.close()
 
+
+
 class Server:
     def __init__(self, host: str, port: int, num_of_user: int):
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -55,7 +57,7 @@ class Server:
         return name, addr, user
 
     def send_to_users(self, name: str, msg: str):
-        if self.online:
+        if self.online and name in self.users:
             self.users[name].send(msg)
 
     def user_close(self, name):

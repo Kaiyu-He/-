@@ -1,4 +1,3 @@
-
 import threading
 from user import User, Server
 
@@ -10,12 +9,17 @@ def handle_users(server, user):
             if not msg:
                 break
             print(f"收到用户信息 {user.addr}: {msg}")
-            name, text = msg.split(":", 1)
-            server.send_to_users(name, text)
+            msg_type, msg = msg.split(':', 1)
+            if msg_type == 'message':
+                from_user, to_user, text = msg.split('/')
+                if from_user == to_user:
+                    continue
+                server.send_to_users(to_user, msg)
         except Exception as e:
             print(f"Error with {user.addr}: {e}")
             break
     server.user_close(user.name)
+
 
 # 启动服务器
 def start_server(host="10.24.8.39", port=1234):
