@@ -1,5 +1,6 @@
 import json
 import socket
+import time
 
 
 class User:  # 单个用户连接
@@ -34,9 +35,9 @@ class User:  # 单个用户连接
         """
         msg = self.conn.recv(1024).decode('utf-8')
         return msg
+
     def close(self):
         self.conn.close()
-
 
 
 class Server:
@@ -46,6 +47,23 @@ class Server:
         self.server_socket.listen(num_of_user)
         self.users: dict[str: User] = {}
         self.online: dict[str: bool] = {}
+        self.history: dict[str: dict] = self.load_history()
+
+    def load_history(self):
+        load_path = "./server_total_history_save.json"
+        try:
+            with open(load_path, "r") as f:
+                return json.load(f)
+        except:
+            return {}
+
+    def save_history(self):
+        save_path = "./server_total_history_save.json"
+        try:
+            with open(save_path, "w") as f:
+                f.write(json.dumps(self.history, indent=4, ensure_ascii=False))
+        except Exception as e:
+            print(f"无法保存: {e}")
 
     def add_user(self):
         conn, addr = self.server_socket.accept()
@@ -55,10 +73,67 @@ class Server:
         self.users[name] = user
         self.online[name] = True
         self.send_to_all(f"users_online:{json.dumps(self.online)}")
+        if name not in self.history:
+            self.history[name]: dict = {
+                "type": "user",
+                "history": {},
+                "password": None
+            }
+        time.sleep(0.1)
+        self.send_to_users(name, f"users_history:{json.dumps(self.history[name]['history'])}")
         return name, addr, user
 
+    def add_friend(self, from_user, to_user):
+        if from_user not in self.history:
+            ValueError("用户不存在")
+        self.history[from_user]['history'][to_user] = {
+            "msg": [],
+            "user": None
+        }
+
+    def add_chat(self, from_user: str, to_user_or_group, message):
+        if self.history[to_user_or_group]['type'] == "user":
+            if to_user_or_group not in self.history[from_user]:
+                self.add_friend(from_user, to_user_or_group)
+            self.send_to_users(to_user_or_group, message)
+            self.history[from_user]['history'][to_user_or_group]["msg"].append(message)
+        else:
+            for group_user in self.history[to_user_or_group]["users_list"]:
+                if group_user not in self.history:
+                    continue
+                self.history[group_user]['history'][to_user_or_group]['msg'].append(message)
+                if group_user == from_user:
+                    continue
+                self.send_to_users(group_user, message)
+
+    def add_group(self, from_user, group_name, users_list):
+        if group_name in self.history:
+            if from_user not in self.history[group_name]["users_list"]:
+                return None
+            for add_user in users_list:
+                if add_user not in self.history[group_name]["users_list"]:
+                    self.history[group_name]["users_list"].append(add_user)
+            return f"{from_user}/{self.history[group_name]['users_list']}/{group_name}"
+        self.history[group_name] = {
+            "type": f"group_[]",
+            "users_list": users_list
+        }
+        for group_user in users_list:
+            if group_user not in self.history:
+                self.history[group_user]: dict = {
+                    "type": "user",
+                    "history": {}
+                }
+            self.history[group_user]['history'][group_name] = {
+                "msg": [],
+                "user": users_list
+            }
+        return f"{from_user}/{self.history[group_name]['users_list']}/{group_name}"
+
     def send_to_users(self, name: str, msg: str):
+        self.save_history()
         if name in self.users and self.online[name]:
+            print(f"发送信息给 {name}——{msg}")
             self.users[name].send(msg)
 
     def send_to_all(self, msg):
@@ -72,5 +147,3 @@ class Server:
         print(f"用户：{user.name} 下线, 地址{user.addr}")
         self.users[name].close()
         self.send_to_all(f"users_online:{json.dumps(self.online)}")
-
-
