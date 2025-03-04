@@ -1,0 +1,112 @@
+{
+    "132": {
+        "type": "user",
+        "history": {
+            "group": {
+                "msg": [
+                    "message:132/group/123123",
+                    "message:123/group/132123",
+                    "message:hekaiyu/group/132123",
+                    "message:123/group/大家好",
+                    "message:123/group/ASDFA\nADFAS"
+                ],
+                "user": [
+                    "hekaiyu",
+                    "111",
+                    "he",
+                    "132"
+                ]
+            },
+            "132": {
+                "msg": [],
+                "user": null
+            },
+            "123": {
+                "msg": [
+                    "message:132/123/123132"
+                ],
+                "user": null
+            }
+        },
+        "password": null
+    },
+    "group": {
+        "type": "group_[]",
+        "users_list": [
+            "hekaiyu",
+            "111",
+            "he",
+            "132"
+        ]
+    },
+    "hekaiyu": {
+        "type": "user",
+        "history": {
+            "group": {
+                "msg": [
+                    "message:132/group/123123",
+                    "message:123/group/132123",
+                    "message:hekaiyu/group/132123",
+                    "message:123/group/大家好",
+                    "message:123/group/ASDFA\nADFAS"
+                ],
+                "user": [
+                    "hekaiyu",
+                    "111",
+                    "he",
+                    "132"
+                ]
+            }
+        }
+    },
+    "111": {
+        "type": "user",
+        "history": {
+            "group": {
+                "msg": [
+                    "message:132/group/123123",
+                    "message:123/group/132123",
+                    "message:hekaiyu/group/132123",
+                    "message:123/group/大家好",
+                    "message:123/group/ASDFA\nADFAS"
+                ],
+                "user": [
+                    "hekaiyu",
+                    "111",
+                    "he",
+                    "132"
+                ]
+            }
+        }
+    },
+    "he": {
+        "type": "user",
+        "history": {
+            "group": {
+                "msg": [
+                    "message:132/group/123123",
+                    "message:123/group/132123",
+                    "message:hekaiyu/group/132123",
+                    "message:123/group/大家好",
+                    "message:123/group/ASDFA\nADFAS"
+                ],
+                "user": [
+                    "hekaiyu",
+                    "111",
+                    "he",
+                    "132"
+                ]
+            }
+        }
+    },
+    "123": {
+        "type": "user",
+        "history": {
+            "123": {
+                "msg": [],
+                "user": null
+            }
+        },
+        "password": null
+    }
+}
