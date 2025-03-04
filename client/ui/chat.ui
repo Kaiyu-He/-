@@ -133,50 +133,56 @@ min-height:10px;</string>
         <item>
          <layout class="QHBoxLayout" name="right_layout">
           <item>
-           <widget class="QLabel" name="image1">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="layoutDirection">
-             <enum>Qt::LeftToRight</enum>
+           <widget class="QPushButton" name="emoji">
+            <property name="styleSheet">
+             <string notr="true">min-width: 30px;
+max-width: 30px;
+min-height: 20px;
+max-height: 20px;
+image:url(:/png/smiley.png);
+background-color: transparent;
+border: none;</string>
             </property>
             <property name="text">
-             <string>add</string>
-            </property>
-            <property name="textFormat">
-             <enum>Qt::AutoText</enum>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             <string/>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="image2">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
+           <widget class="QPushButton" name="image">
+            <property name="styleSheet">
+             <string notr="true">min-width: 30px;
+max-width: 30px;
+min-height: 20px;
+max-height: 20px;
+image:url(:/png/image-gallery.png);
+background-color: transparent;
+border: none;</string>
             </property>
             <property name="text">
-             <string>image</string>
+             <string/>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="image3">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
+           <widget class="QPushButton" name="video">
+            <property name="mouseTracking">
+             <bool>false</bool>
+            </property>
+            <property name="acceptDrops">
+             <bool>false</bool>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">min-width: 30px;
+max-width: 30px;
+min-height: 20px;
+max-height: 20px;
+image:url(:/png/cam-recorder.png);
+background-color: transparent;
+border: none;</string>
             </property>
             <property name="text">
-             <string>TextLabel</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -196,7 +202,7 @@ min-height:10px;</string>
          </layout>
         </item>
         <item>
-         <widget class="QTextEdit" name="textEdit"/>
+         <widget class="QTextEdit" name="input_field"/>
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -238,6 +244,8 @@ min-height:10px;</string>
    </layout>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="image/button.qrc"/>
+ </resources>
  <connections/>
 </ui>

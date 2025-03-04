@@ -1,6 +1,9 @@
+import os
 import sys
 from PyQt6.QtWidgets import QApplication
 from gui import ChatClient
+os.chdir(os.path.dirname(__file__))
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

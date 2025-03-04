@@ -7,8 +7,9 @@
 
 
 from PyQt6 import QtCore, QtGui, QtWidgets
-from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QTextEdit
+import os
+
+os.chdir(os.path.dirname(os.path.dirname(__file__)))
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -78,38 +79,46 @@ class Ui_MainWindow(object):
         self.right_widge.addWidget(self.chat_display)
         self.right_layout = QtWidgets.QHBoxLayout()
         self.right_layout.setObjectName("right_layout")
-        self.image1 = QtWidgets.QLabel(parent=self.chat_widget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.image1.sizePolicy().hasHeightForWidth())
-        self.image1.setSizePolicy(sizePolicy)
-        self.image1.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
-        self.image1.setTextFormat(QtCore.Qt.TextFormat.AutoText)
-        self.image1.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
-        self.image1.setObjectName("image1")
-        self.right_layout.addWidget(self.image1)
-        self.image2 = QtWidgets.QLabel(parent=self.chat_widget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.image2.sizePolicy().hasHeightForWidth())
-        self.image2.setSizePolicy(sizePolicy)
-        self.image2.setObjectName("image2")
-        self.right_layout.addWidget(self.image2)
-        self.image3 = QtWidgets.QLabel(parent=self.chat_widget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.image3.sizePolicy().hasHeightForWidth())
-        self.image3.setSizePolicy(sizePolicy)
-        self.image3.setObjectName("image3")
-        self.right_layout.addWidget(self.image3)
+        self.emoji = QtWidgets.QPushButton(parent=self.chat_widget)
+        self.emoji.setStyleSheet("min-width: 30px;\n"
+"max-width: 30px;\n"
+"min-height: 20px;\n"
+"max-height: 20px;\n"
+"image:url(./image/smiley.png);\n"
+"background-color: transparent;\n"
+"border: none;")
+        self.emoji.setText("")
+        self.emoji.setObjectName("emoji")
+        self.right_layout.addWidget(self.emoji)
+        self.image = QtWidgets.QPushButton(parent=self.chat_widget)
+        self.image.setStyleSheet("min-width: 30px;\n"
+"max-width: 30px;\n"
+"min-height: 20px;\n"
+"max-height: 20px;\n"
+"image:url(./image/image-gallery.png);\n"
+"background-color: transparent;\n"
+"border: none;")
+        self.image.setText("")
+        self.image.setObjectName("image")
+        self.right_layout.addWidget(self.image)
+        self.video = QtWidgets.QPushButton(parent=self.chat_widget)
+        self.video.setMouseTracking(False)
+        self.video.setAcceptDrops(False)
+        self.video.setStyleSheet("min-width: 30px;\n"
+"max-width: 30px;\n"
+"min-height: 20px;\n"
+"max-height: 20px;\n"
+"image:url(./image/cam-recorder.png);\n"
+"background-color: transparent;\n"
+"border: none;")
+        self.video.setText("")
+        self.video.setObjectName("video")
+        self.right_layout.addWidget(self.video)
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.right_layout.addItem(spacerItem2)
         self.right_widge.addLayout(self.right_layout)
         self.input_field = QtWidgets.QTextEdit(parent=self.chat_widget)
-        self.input_field.setObjectName("textEdit")
+        self.input_field.setObjectName("input_field")
         self.right_widge.addWidget(self.input_field)
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
@@ -144,7 +153,4 @@ class Ui_MainWindow(object):
         self.add_group_button.setText(_translate("MainWindow", "添加群聊"))
         self.name_chat.setText(_translate("MainWindow", "名称"))
         self.detail.setText(_translate("MainWindow", "..."))
-        self.image1.setText(_translate("MainWindow", "add"))
-        self.image2.setText(_translate("MainWindow", "image"))
-        self.image3.setText(_translate("MainWindow", "TextLabel"))
         self.send_button.setText(_translate("MainWindow", "发送"))

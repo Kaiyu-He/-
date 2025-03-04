@@ -12,7 +12,7 @@ from Client import Client
 from addfriend import AddFriendDialog, AddGroupFriendDialog
 from ui.log_in import Ui_login
 from ui.chat import Ui_MainWindow as UI_chat
-
+from video import VideoAudioDialog
 class TextEditWithEnter(QTextEdit):
     def __init__(self, process_enter, parent=None):
         super().__init__(parent)
@@ -81,7 +81,7 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
                 self.update_friends_list()
                 self.update_chat_display()
         except Exception as e:
-            print(f"处理消息出错: {e}")
+            print(f"处理消息出错: {e} {msg}")
 
     def receive_msg(self):
         """接收消息的线程函数"""
@@ -139,6 +139,9 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
         # self.input_field.setFixedHeight(20)
         self.send_button.clicked.connect(self.send_msg)
         self.add_friend_button.clicked.connect(self.add_friend)
+
+        self.video.clicked.connect(self.start_video)
+
 
         # 启动接收消息的线程
         self.receive_thread = threading.Thread(target=self.receive_msg)
@@ -205,6 +208,12 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
                 except Exception as e:
                     QMessageBox.critical(self, "错误", f"添加好友失败: {e}")
 
+
+    def start_video(self):
+        dialog = VideoAudioDialog()
+        dialog.exec()
+
+
     def update_friends_list(self):
 
         """更新好友列表，显示用户名和在线状态"""
@@ -262,6 +271,8 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
 
     def update_chat_display(self):
         """更新聊天框"""
+        text = self.selected_user
+        self.name_chat.setText(text)
         if self.selected_user and self.client:
             messages = self.client.get_user_msg(self.selected_user)
             self.chat_display.clear()

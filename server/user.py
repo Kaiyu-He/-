@@ -33,7 +33,7 @@ class User:  # 单个用户连接
         """
         从客户端接收消息
         """
-        msg = self.conn.recv(1024).decode('utf-8')
+        msg = self.conn.recv(10240).decode('utf-8')
         return msg
 
     def close(self):
@@ -82,7 +82,7 @@ class Server:
         self.history[name]['history']['deepseek'] = {
             "msg": [],
         }
-        time.sleep(0.1)
+        time.sleep(0.5)
         self.send_to_users(name, f"users_history:{json.dumps(self.history[name]['history'])}")
         return name, addr, user
 
@@ -93,6 +93,16 @@ class Server:
             "msg": [],
             "user": None
         }
+
+    def get_deepseek_chat(self, user_name, message):
+        self.history[user_name]['history']['deepseek']['msg'].append(f"user:{message}")
+        history = self.history[user_name]['history']['deepseek']['msg']
+        message = []
+        for sentence in history:
+            message.append({"role": sentence.split(":", 1)[0], "content": sentence.split(":", 1)[1]})
+        return message
+    def add_deepseek_chat(self, user_name, deepseek_response):
+        self.history[user_name]['history']['deepseek']['msg'].append(f"assistant:{deepseek_response}")
 
     def add_chat(self, from_user: str, to_user_or_group, message):
         if self.history[to_user_or_group]['type'] == "user":
@@ -148,5 +158,6 @@ class Server:
         self.online[name] = False
         user = self.users[name]
         print(f"用户：{user.name} 下线, 地址{user.addr}")
+        self.history[name]['history']['deepseek']['msg'] = []
         self.users[name].close()
         self.send_to_all(f"users_online:{json.dumps(self.online)}")

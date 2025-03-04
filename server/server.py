@@ -1,7 +1,25 @@
 import ast
 import json
+import socket
 import threading
+import time
+
 from user import User, Server
+from openai import OpenAI
+
+
+def deepseek(message):
+    start = time.time()
+    deepseek_api_key = "sk-a131ac41780f4ff8b63b4fd3698699f5"
+    deepseek_model = OpenAI(api_key=deepseek_api_key, base_url="https://api.deepseek.com")
+    response = deepseek_model.chat.completions.create(
+        model="deepseek-chat",
+        messages=message,
+        stream=False,
+    )
+    text = response.choices[0].message.content
+    print(f"deepseek_respoonse_time: {time.time() - start}")
+    return text
 
 
 def handle_users(server, user):
@@ -16,7 +34,14 @@ def handle_users(server, user):
                 args = msg.split('/')
                 if args[0] == args[1]:
                     continue
-                server.add_chat(args[0],args[1], f"message:{msg}")
+                if args[1] == "deepseek":
+                    text = server.get_deepseek_chat(args[0], args[2])
+                    text = deepseek(text)
+                    message = f"message:deepseek/{args[0]}/{text}"
+                    server.send_to_users(args[0], message)
+                    server.add_deepseek_chat(args[0], text)
+                else:
+                    server.add_chat(args[0], f"message:{msg}")
 
             elif msg_type == 'add_group':
                 args = msg.split('/')
@@ -37,8 +62,26 @@ def handle_users(server, user):
     server.user_close(user.name)
 
 
+def get_local_ipv4():
+    try:
+        # 创建一个 UDP 套接字
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        # 尝试连接到一个外部地址，这里使用 Google 的公共 DNS 服务器地址
+        s.connect(("8.8.8.8", 80))
+        # 获取本地 IP 地址
+        local_ip = s.getsockname()[0]
+        s.close()
+        return local_ip
+    except Exception as e:
+        print(f"获取本地 IP 地址时出错: {e}")
+        return None
+
+
 # 启动服务器
-def start_server(host="10.23.232.177", port=1234):
+def start_server(host=None, port=1234):
+    if host == None:
+        host = get_local_ipv4()
+
     server = Server(host, port, 20)
     print(f"服务器ip {host}:{port}")
     while True:
