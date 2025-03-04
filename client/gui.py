@@ -4,7 +4,7 @@ import threading
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QListWidget,
     QTextEdit, QMessageBox, QInputDialog, QDialog, QListWidget, QVBoxLayout, QHBoxLayout, QDialogButtonBox,
-    QListWidgetItem
+    QListWidgetItem, QGraphicsDropShadowEffect
 )
 from PyQt6.QtCore import Qt, QTimer, pyqtSignal, QObject
 from Client import Client
@@ -75,7 +75,11 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
                 self.update_friends_list()
             elif msg_type == "users_history":
                 self.client.friends = json.loads(msg)
+                for user_name, history in self.client.friends.items():
+                    self.selected_user = user_name
+                    break
                 self.update_friends_list()
+                self.update_chat_display()
         except Exception as e:
             print(f"处理消息出错: {e}")
 
@@ -114,7 +118,7 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
     def show_chat_interface(self):
         """显示聊天界面"""
         self.login_widget.hide()
-        self.setupUi_chat(self)
+        self.setupUi(self)
 
         self.add_group_button.clicked.connect(self.add_group)
         self.user_list_widget.itemClicked.connect(self.on_user_select)
@@ -140,6 +144,7 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
         self.receive_thread = threading.Thread(target=self.receive_msg)
         self.receive_thread.daemon = True
         self.receive_thread.start()
+
 
     def send_msg(self):
         """发送消息"""
@@ -235,6 +240,8 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
             self.user_list_widget.setItemWidget(item, widget)
 
             widget.setFixedHeight(40)  # 设置每个列表项的高度为 40 像素
+            if friend == self.selected_user:
+                widget.setStyleSheet("background-color: #d4d4d4;")
             username_label.setFixedHeight(30)  # 设置用户名标签的高度为 30 像素
             try:
                 status_label.setFixedHeight(30)  # 设置状态标签的高度为 30 像素
@@ -250,6 +257,7 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
             username_label = selected_item.layout().itemAt(0).widget()
             self.selected_user = username_label.text()
             self.update_chat_display()
+            self.update_friends_list()
 
 
     def update_chat_display(self):

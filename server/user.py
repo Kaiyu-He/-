@@ -79,6 +79,9 @@ class Server:
                 "history": {},
                 "password": None
             }
+        self.history[name]['history']['deepseek'] = {
+            "msg": [],
+        }
         time.sleep(0.1)
         self.send_to_users(name, f"users_history:{json.dumps(self.history[name]['history'])}")
         return name, addr, user

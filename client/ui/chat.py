@@ -11,7 +11,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QTextEdit
 
 class Ui_MainWindow(object):
-    def setupUi_chat(self, MainWindow):
+    def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(759, 502)
         self.chat_widget = QtWidgets.QWidget(parent=MainWindow)
@@ -133,10 +133,10 @@ class Ui_MainWindow(object):
         self.horizontalLayout_6.addLayout(self.chat_layout)
         MainWindow.setCentralWidget(self.chat_widget)
 
-        self.retranslateUi_chat(MainWindow)
+        self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-    def retranslateUi_chat(self, MainWindow):
+    def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "网络聊天室"))
         self.chat_list.setText(_translate("MainWindow", "聊天列表"))
