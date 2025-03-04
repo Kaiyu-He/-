@@ -4,7 +4,7 @@ from gui import ChatClient
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    host = '10.23.232.177'
+    host = '10.23.243.6'
     port = 1234
     window = ChatClient(host, port)
     window.show()

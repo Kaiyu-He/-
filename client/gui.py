@@ -10,9 +10,26 @@ from PyQt6.QtCore import Qt, QTimer, pyqtSignal, QObject
 from Client import Client
 
 from addfriend import AddFriendDialog, AddGroupFriendDialog
+from ui.log_in import Ui_login
+from ui.chat import Ui_MainWindow as UI_chat
+
+class TextEditWithEnter(QTextEdit):
+    def __init__(self, process_enter, parent=None):
+        super().__init__(parent)
+        self.process = process_enter
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key.Key_Return and event.modifiers() & Qt.KeyboardModifier.ShiftModifier:
+            # 如果按下 Shift + Enter，插入换行
+            self.insertPlainText("\n")
+        elif event.key() == Qt.Key.Key_Return:
+            # 如果按下 Enter，发送内容
+            self.process()
+        else:
+            # 其他按键按默认处理
+            super().keyPressEvent(event)
 
 
-class ChatClient(QMainWindow):
+class ChatClient(QMainWindow, Ui_login, UI_chat):
     message_received = pyqtSignal(str)
 
     def __init__(self, host, port):
@@ -49,7 +66,6 @@ class ChatClient(QMainWindow):
                     self.client.add_msg(to_user, f"message:{msg}")
                     self.update_chat_display()
             elif msg_type == 'users_online':
-                print(msg)
                 self.online = json.loads(msg)
                 self.update_friends_list()
             elif msg_type == "add_group":
@@ -75,29 +91,13 @@ class ChatClient(QMainWindow):
 
     def init_ui(self):
         """初始化界面"""
-        self.setWindowTitle("聊天客户端")
-        self.setGeometry(100, 100, 800, 600)
-
-        # 创建登录界面
-        self.login_widget = QWidget()
-        self.login_layout = QVBoxLayout()
-        self.login_widget.setLayout(self.login_layout)
-
-        self.name_label = QLabel("输入用户名：")
-        self.login_layout.addWidget(self.name_label)
-
-        self.name_input = QLineEdit()
-        self.login_layout.addWidget(self.name_input)
-
-        self.start_button = QPushButton("开始聊天")
+        self.setupUi_login(self)
         self.start_button.clicked.connect(self.start_chat)
-        self.login_layout.addWidget(self.start_button)
-
-        self.setCentralWidget(self.login_widget)
 
     def start_chat(self):
         """开始聊天"""
         name = self.name_input.text()
+
         if ' ' in name:
             QMessageBox.warning(self, "错误", "用户名不能包含空格，请重新输入。")
             return
@@ -114,52 +114,27 @@ class ChatClient(QMainWindow):
     def show_chat_interface(self):
         """显示聊天界面"""
         self.login_widget.hide()
+        self.setupUi_chat(self)
 
-        # 创建主聊天界面
-        self.chat_widget = QWidget()
-        self.chat_layout = QHBoxLayout()
-        self.chat_widget.setLayout(self.chat_layout)
-
-        # 左侧用户列表和按钮
-        self.left_widget = QWidget()
-        self.left_layout = QVBoxLayout()
-        self.left_widget.setLayout(self.left_layout)
-
-        # 添加群聊按钮
-        self.add_group_button = QPushButton("添加群聊")
-        self.add_group_button.clicked.connect(self.add_group)  # 连接到一个新的槽函数
-        self.left_layout.addWidget(self.add_group_button)
-
-        # 用户列表
-        self.user_list_widget = QListWidget()
+        self.add_group_button.clicked.connect(self.add_group)
         self.user_list_widget.itemClicked.connect(self.on_user_select)
-        self.left_layout.addWidget(self.user_list_widget)
 
-        self.chat_layout.addWidget(self.left_widget)
-
-        # 右侧聊天框和输入框
-        self.right_widget = QWidget()
-        self.right_layout = QVBoxLayout()
-        self.right_widget.setLayout(self.right_layout)
-
-        self.chat_display = QTextEdit()
         self.chat_display.setReadOnly(True)
-        self.right_layout.addWidget(self.chat_display)
 
-        self.input_field = QLineEdit()
-        self.input_field.returnPressed.connect(self.send_msg)
-        self.right_layout.addWidget(self.input_field)
+        index = self.right_widge.indexOf(self.input_field)
+        stretch = self.right_widge.stretch(index)
+        self.right_widge.removeWidget(self.input_field)
+        self.input_field.deleteLater()
+        new_input_field = TextEditWithEnter(self.send_msg)
+        new_input_field.setObjectName("input_field")  # 保持相同的对象名
+        self.right_widge.insertWidget(index, new_input_field)
+        self.right_widge.setStretch(index, stretch)
+        self.input_field = new_input_field
 
-        self.send_button = QPushButton("发送")
+        # self.input_field.returnPressed.connect(self.send_msg)
+        # self.input_field.setFixedHeight(20)
         self.send_button.clicked.connect(self.send_msg)
-        self.right_layout.addWidget(self.send_button)
-
-        self.add_friend_button = QPushButton("添加好友")
         self.add_friend_button.clicked.connect(self.add_friend)
-        self.right_layout.addWidget(self.add_friend_button)
-
-        self.chat_layout.addWidget(self.right_widget)
-        self.setCentralWidget(self.chat_widget)
 
         # 启动接收消息的线程
         self.receive_thread = threading.Thread(target=self.receive_msg)
@@ -168,7 +143,9 @@ class ChatClient(QMainWindow):
 
     def send_msg(self):
         """发送消息"""
-        msg = self.input_field.text()
+        msg = self.input_field.toPlainText()
+        print(msg)
+        print(self.selected_user)
         if msg and self.selected_user:
             try:
                 text = f"message:{self.client.name}/{self.selected_user}/{msg}"
@@ -199,9 +176,6 @@ class ChatClient(QMainWindow):
         if items:
             self.user_list_widget.setCurrentItem(items[0])
         self.client.send_msg(msg)
-
-
-
 
 
     def add_friend(self):
