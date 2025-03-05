@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/tcp.iml" filepath="$PROJECT_DIR$/.idea/tcp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../计算机网络/.idea/计算机网络.iml" filepath="$PROJECT_DIR$/../计算机网络/.idea/计算机网络.iml" />
     </modules>
   </component>
 </project>

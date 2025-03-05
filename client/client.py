@@ -10,6 +10,7 @@ class Client:  # 客户端
         self.name = name  # 用户名称
         self.user_name(name)
         self.friends = {}
+        self.max_length = 2 ** 16
     def get_chats(self) -> list:
         users = []
         for user, msgs in self.friends.items():
@@ -57,7 +58,7 @@ class Client:  # 客户端
         """
         从客户端接收消息
         """
-        msg = self.conn.recv(1024).decode('utf-8')
+        msg = self.conn.recv(self.max_length).decode('utf-8')
         return msg
 
     def close(self):

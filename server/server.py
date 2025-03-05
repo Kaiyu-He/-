@@ -41,7 +41,7 @@ def handle_users(server, user):
                     server.send_to_users(args[0], message)
                     server.add_deepseek_chat(args[0], text)
                 else:
-                    server.add_chat(args[0], f"message:{msg}")
+                    server.add_chat(args[0], args[1], f"message:{msg}")
 
             elif msg_type == 'add_group':
                 args = msg.split('/')
@@ -56,6 +56,9 @@ def handle_users(server, user):
             elif msg_type == 'add_friend':
                 args = msg.split('/')
                 server.add_friend(args[0], args[1])
+            elif msg_type == "video":
+                args = msg.split('/')
+                server.send_to_users(args[1], f"video:{msg}")
         except Exception as e:
             print(f"Error with {user.addr}: {e}")
             break

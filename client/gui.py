@@ -1,5 +1,6 @@
 import ast
 import json
+import socket
 import threading
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QListWidget,
@@ -13,10 +14,13 @@ from addfriend import AddFriendDialog, AddGroupFriendDialog
 from ui.log_in import Ui_login
 from ui.chat import Ui_MainWindow as UI_chat
 from video import VideoAudioDialog
+
+
 class TextEditWithEnter(QTextEdit):
     def __init__(self, process_enter, parent=None):
         super().__init__(parent)
         self.process = process_enter
+
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Return and event.modifiers() & Qt.KeyboardModifier.ShiftModifier:
             # 如果按下 Shift + Enter，插入换行
@@ -36,10 +40,12 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
         super().__init__()
         self.host = host
         self.port = port
+        self.ipv4 = get_local_ipv4()
         self.client = None
         self.online = {}
         self.current_chat_box = None
         self.selected_user = None
+        self.video_port = 12654
         self.init_ui()
         self.message_received.connect(self.handle_message)
 
@@ -80,6 +86,13 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
                     break
                 self.update_friends_list()
                 self.update_chat_display()
+            elif msg_type == "video":
+                args = msg.split('/')
+                self.video.clicked.disconnect(self.start_video)
+                dialog = VideoAudioDialog(args[2], int(args[3]), False)
+                dialog.show()
+                self.video.clicked.connect(self.start_video)
+                dialog.exec()
         except Exception as e:
             print(f"处理消息出错: {e} {msg}")
 
@@ -142,18 +155,14 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
 
         self.video.clicked.connect(self.start_video)
 
-
         # 启动接收消息的线程
         self.receive_thread = threading.Thread(target=self.receive_msg)
         self.receive_thread.daemon = True
         self.receive_thread.start()
 
-
     def send_msg(self):
         """发送消息"""
         msg = self.input_field.toPlainText()
-        print(msg)
-        print(self.selected_user)
         if msg and self.selected_user:
             try:
                 text = f"message:{self.client.name}/{self.selected_user}/{msg}"
@@ -172,7 +181,6 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
         group_name, selected_friends = dialog.get_selected_friends()
         if self.client.name not in selected_friends:
             selected_friends.append(self.client.name)
-        print(selected_friends)
         msg = f"add_group:{self.client.name}/{selected_friends}/{group_name}"
         self.client.add_chat(group_name, selected_friends)
         self.update_friends_list()
@@ -184,7 +192,6 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
         if items:
             self.user_list_widget.setCurrentItem(items[0])
         self.client.send_msg(msg)
-
 
     def add_friend(self):
         dialog = AddFriendDialog(self, user=self.client.name)
@@ -208,11 +215,17 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
                 except Exception as e:
                     QMessageBox.critical(self, "错误", f"添加好友失败: {e}")
 
-
     def start_video(self):
-        dialog = VideoAudioDialog()
-        dialog.exec()
-
+        self.video.clicked.disconnect(self.start_video)
+        try:
+            if self.selected_user in self.online and \
+                    self.online[self.selected_user] and self.selected_user != self.client.name:
+                self.client.send_msg(f"video:{self.client.name}/{self.selected_user}/{self.ipv4}/{self.video_port}")
+                dialog = VideoAudioDialog(self.ipv4, self.video_port, True)
+                dialog.exec()
+        except Exception as e:
+            print(f"视频连接失败 {e}")
+        self.video.clicked.connect(self.start_video)
 
     def update_friends_list(self):
 
@@ -268,7 +281,6 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
             self.update_chat_display()
             self.update_friends_list()
 
-
     def update_chat_display(self):
         """更新聊天框"""
         text = self.selected_user
@@ -281,11 +293,24 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
 
     def add_chat_display(self, msg: str):
         """添加聊天框信息"""
-        print(f"msg:{msg}")
         try:
             msg_type, msg = msg.split(':', 1)
-            print(msg)
             msg = msg.split('/')
             self.chat_display.append(f"{msg[0]}: {msg[2]}")
         except:
             return
+
+
+def get_local_ipv4():
+    try:
+        # 创建一个 UDP 套接字
+        s_get_ip = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        # 尝试连接到一个外部地址，这里使用 Google 的公共 DNS 服务器地址
+        s_get_ip.connect(("8.8.8.8", 80))
+        # 获取本地 IP 地址
+        local_ip = s_get_ip.getsockname()[0]
+        s_get_ip.close()
+        return local_ip
+    except Exception as e:
+        print(f"获取本地 IP 地址时出错: {e}")
+        return None
