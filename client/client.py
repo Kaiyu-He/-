@@ -19,9 +19,12 @@ class Client:  # 客户端
     def get_friends(self) -> list:
         users = []
         for user, msgs in self.friends.items():
-            if type(self.friends[user]['user']) == list:
+            try:
+                if type(self.friends[user]['user']) == list:
+                    continue
+                users.append(user)
+            except:
                 continue
-            users.append(user)
         return users
 
     def get_user_msg(self, name) -> dict:

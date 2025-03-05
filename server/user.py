@@ -123,6 +123,7 @@ class Server:
                 self.send_to_users(group_user, message)
 
     def add_group(self, from_user, group_name, users_list):
+        group_name = group_name
         if group_name in self.history:
             if from_user not in self.history[group_name]["users_list"]:
                 return None

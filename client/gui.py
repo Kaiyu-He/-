@@ -178,7 +178,7 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
         contacts = self.client.get_friends()
         dialog = AddGroupFriend(self, contacts=contacts)
         if dialog.exec() == QDialog.DialogCode.Accepted:
-            group_name = dialog.get_group_name()
+            group_name = dialog.get_group_name() + "<|group|>"
             if len(group_name) == 0:
                 return
             selected_friends =dialog.get_selected_contacts()
@@ -309,8 +309,8 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
         """更新聊天框"""
         text = self.selected_user
         self.name_chat.setText(f"{text}")
-        if self.client.friends[text]['user'] is not None:
-            self.name_chat.setText(f"{text}         群内用户:{self.client.friends[text]['user']}")
+        if self.client.friends[text]['user'].find("<|group|>") >= 0:
+            self.name_chat.setText(f"{text.split('<|group|>')[0]}         群内用户:{self.client.friends[text]['user']}")
         if self.selected_user and self.client:
             messages = self.client.get_user_msg(self.selected_user)
             clear_layout(self.chat_display)
