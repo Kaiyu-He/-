@@ -13,7 +13,7 @@ class User:  # 单个用户连接
         self.conn = conn  # 连接对象
         self.addr = f"{addr[0]}:{addr[1]}"  # 客户端地址:端口
         self.name = None  # 用户名称
-        self.max_length = 2 ** 20
+        self.max_length = 2 ** 30
 
     def get_user_name(self) -> tuple:
         """
@@ -54,7 +54,7 @@ class Server:
     def load_history(self):
         load_path = "./server_total_history_save.json"
         try:
-            with open(load_path, "r") as f:
+            with open(load_path, "r", encoding="utf-8") as f:
                 return json.load(f)
         except:
             return {}
@@ -113,6 +113,7 @@ class Server:
                 self.add_friend(from_user, to_user_or_group)
             self.send_to_users(to_user_or_group, message)
             self.history[from_user]['history'][to_user_or_group]["msg"].append(message)
+            self.history[to_user_or_group]['history'][from_user]["msg"].append(message)
         else:
             for group_user in self.history[to_user_or_group]["users_list"]:
                 if group_user not in self.history:

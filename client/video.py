@@ -6,12 +6,9 @@ import threading
 import time
 
 import cv2
-import pyaudio
 import numpy as np
-from PyQt6.QtCore import QTimer, Qt
 from PyQt6.QtGui import QImage, QPixmap
 from PyQt6.QtWidgets import QApplication, QDialog
-from PyQt6 import QtWidgets
 
 from ui.video import Ui_Dialog
 
@@ -23,7 +20,7 @@ class VideoAudioDialog(QDialog, Ui_Dialog):
         self.port = port
         self.is_sender = is_sender
         self.connected = True
-        self.MAX_DGRAM = 2 ** 16
+        self.MAX_DGRAM = 2 ** 30
         self.MAX_IMAGE_DGRAM = self.MAX_DGRAM - 64
         # 设置 UI
         self.setupUi(self)

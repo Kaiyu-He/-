@@ -3,6 +3,7 @@ import socket
 import sys
 from PyQt6.QtWidgets import QApplication
 from gui import ChatClient
+
 os.chdir(os.path.dirname(__file__))
 
 
@@ -19,6 +20,7 @@ def get_local_ipv4():
     except Exception as e:
         print(f"获取本地 IP 地址时出错: {e}")
         return None
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

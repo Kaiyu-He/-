@@ -1,9 +1,11 @@
+import os
 import sys
 import socket
 
 from PyQt6.QtWidgets import QApplication
 from gui import ChatClient
 
+os.chdir(os.path.dirname(__file__))
 
 def get_local_ipv4():
     try:

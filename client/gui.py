@@ -1,4 +1,5 @@
 import ast
+import base64
 import json
 import os.path
 import socket
@@ -54,6 +55,7 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
 
     def handle_message(self, msg):
         try:
+            print(msg)
             if ':' not in msg:
                 raise ValueError(f"消息格式错误: {msg}")
             msg_type, msg = msg.split(':', 1)
@@ -227,11 +229,10 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
             if file_path:
                 try:
                     # 读取图片文件内容
-                    with open(file_path, 'rb') as f:
-                        file_data = f.read()
-                    file_name = file_path.split('/')[-1]
+                    with open(file_path, "rb") as image_file:
+                        file_data = base64.b64encode(image_file.read()).decode('utf-8')
                     # 构造图片消息
-                    text = f"message:{self.client.name}/{self.selected_user}/<|image|>{file_data.decode('latin1')}<|end_image|>"
+                    text = f"message:{self.client.name}/{self.selected_user}/<|image|>{file_data}<|end_image|>"
                     self.client.send_msg(text)
                     self.client.add_chat(self.selected_user)
                     self.update_friends_list()
@@ -333,7 +334,7 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
                 # 处理图片消息
                 start_index = content.index("<|image|>") + len("<|image|>")
                 end_index = content.index("<|end_image|>")
-                image_data = content[start_index:end_index].encode('latin1')
+                image_data = base64.b64decode(content[start_index:end_index])
                 # 创建临时文件保存图片
                 with tempfile.NamedTemporaryFile(delete=False, suffix='.png') as temp_file:
                     temp_file.write(image_data)
@@ -342,7 +343,7 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
                 if parts[0] == self.client.name:
                     item = BubbleMessage(temp_file_path, parts[0], MessageType.Image, is_send=True)
                 else:
-                    item = BubbleMessage(parts[2], parts[0], MessageType.Image, is_send=False)
+                    item = BubbleMessage(temp_file_path, parts[0], MessageType.Image, is_send=False)
             else:
                 if parts[0] == self.client.name:
                     item = BubbleMessage(parts[2], parts[0], MessageType.Text, is_send=True)
