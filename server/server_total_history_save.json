@@ -1,0 +1,57 @@
+{
+    "123": {
+        "type": "user",
+        "history": {
+            "deepseek": {
+                "msg": []
+            },
+            "123": {
+                "msg": [],
+                "user": null
+            },
+            "111<|group|>": {
+                "msg": [
+                    "message:123/111<|group|>/123123"
+                ],
+                "user": [
+                    "123",
+                    "111"
+                ]
+            }
+        },
+        "password": null
+    },
+    "111": {
+        "type": "user",
+        "history": {
+            "deepseek": {
+                "msg": []
+            },
+            "123": {
+                "msg": [],
+                "user": null
+            },
+            "111": {
+                "msg": [],
+                "user": null
+            },
+            "111<|group|>": {
+                "msg": [
+                    "message:123/111<|group|>/123123"
+                ],
+                "user": [
+                    "123",
+                    "111"
+                ]
+            }
+        },
+        "password": null
+    },
+    "111<|group|>": {
+        "type": "group_[]",
+        "users_list": [
+            "123",
+            "111"
+        ]
+    }
+}

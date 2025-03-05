@@ -133,8 +133,6 @@ class VideoAudioDialog(QDialog, Ui_Dialog):
             return None
 
     def send_thread(self):
-        if self.is_sender is True:
-            return
         while self.connected:
             ret, frame = self.cap.read()
             self.send_img(frame)
@@ -146,8 +144,6 @@ class VideoAudioDialog(QDialog, Ui_Dialog):
             self.from_user.setPixmap(QPixmap.fromImage(q_img))
 
     def receive_thread(self):
-        if self.is_sender is False:
-            return
         while self.connected:
             frame = self.receive_img()
             if frame is None:
