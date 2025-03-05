@@ -18,6 +18,7 @@ from ui.chat import Ui_MainWindow as UI_chat
 from video import VideoAudioDialog
 from Bubble import BubbleMessage, MessageType
 
+
 class TextEditWithEnter(QTextEdit):
     def __init__(self, process_enter, parent=None):
         super().__init__(parent)
@@ -181,7 +182,7 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
             group_name = dialog.get_group_name() + "<|group|>"
             if len(group_name) == 0:
                 return
-            selected_friends =dialog.get_selected_contacts()
+            selected_friends = dialog.get_selected_contacts()
             if self.client.name not in selected_friends:
                 selected_friends.append(self.client.name)
             msg = f"add_group:{self.client.name}/{selected_friends}/{group_name}"
@@ -264,7 +265,10 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
             layout = QHBoxLayout(widget)  # 使用水平布局
 
             # 用户名标签（靠左）
-            username_label = QLabel(friend)
+            if friend.find("<|group|>") >= 0:
+                username_label = QLabel(friend.split("<|group|>")[0] + " ")
+            else:
+                username_label = QLabel(friend)
             username_label.setStyleSheet("color: black;")  # 用户名颜色为黑色
             layout.addWidget(username_label)
 
@@ -302,6 +306,8 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
             # 从 QWidget 中获取用户名标签的文本
             username_label = selected_item.layout().itemAt(0).widget()
             self.selected_user = username_label.text()
+            if self.selected_user.find(" ") >= 0:
+                self.selected_user = self.selected_user.replace(" ", "<|group|>")
             self.update_chat_display()
             self.update_friends_list()
 
@@ -309,7 +315,7 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
         """更新聊天框"""
         text = self.selected_user
         self.name_chat.setText(f"{text}")
-        if self.client.friends[text]['user'].find("<|group|>") >= 0:
+        if self.selected_user.find("<|group|>") >= 0:
             self.name_chat.setText(f"{text.split('<|group|>')[0]}         群内用户:{self.client.friends[text]['user']}")
         if self.selected_user and self.client:
             messages = self.client.get_user_msg(self.selected_user)
@@ -347,7 +353,6 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
             print(f"显示消息出错: {e} {msg}")
 
 
-
 def get_local_ipv4():
     try:
         # 创建一个 UDP 套接字
@@ -361,6 +366,7 @@ def get_local_ipv4():
     except Exception as e:
         print(f"获取本地 IP 地址时出错: {e}")
         return None
+
 
 def clear_layout(layout):
     while layout.count():
