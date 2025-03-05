@@ -1,0 +1,7 @@
+<RCC>
+  <qresource prefix="png">
+    <file>image-gallery.png</file>
+    <file>smiley.png</file>
+    <file>cam-recorder.png</file>
+  </qresource>
+</RCC>
