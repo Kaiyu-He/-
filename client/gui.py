@@ -16,7 +16,7 @@ from addfriend import AddFriendDialog, AddGroupFriendDialog
 from ui.log_in import Ui_login
 from ui.chat import Ui_MainWindow as UI_chat
 from video import VideoAudioDialog
-
+from Bubble import BubbleMessage, MessageType
 
 class TextEditWithEnter(QTextEdit):
     def __init__(self, process_enter, parent=None):
@@ -137,8 +137,6 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
 
         self.add_group_button.clicked.connect(self.add_group)
         self.user_list_widget.itemClicked.connect(self.on_user_select)
-
-        self.chat_display.setReadOnly(True)
 
         index = self.right_widge.indexOf(self.input_field)
         stretch = self.right_widge.stretch(index)
@@ -310,7 +308,7 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
         self.name_chat.setText(text)
         if self.selected_user and self.client:
             messages = self.client.get_user_msg(self.selected_user)
-            self.chat_display.clear()
+            clear_layout(self.chat_display)
             for message in messages:
                 self.add_chat_display(message)
 
@@ -330,14 +328,16 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
                     temp_file.write(image_data)
                     temp_file_path = temp_file.name
                 # 在 chat_display 中插入图片
-                html = f'<p>{from_user}:<img src="{temp_file_path}" width="100"></p>'
+                if parts[0] == self.client.name:
+                    item = BubbleMessage(temp_file_path, parts[0], MessageType.Image, is_send=True)
+                else:
+                    item = BubbleMessage(parts[2], parts[0], MessageType.Image, is_send=False)
             else:
-                html = f"""
-                <div style="background-color: #dcf8c6; border-radius: 10px 10px 0 10px; padding: 10px; margin-bottom: 10px; max-width: 70%; float: right; clear: both;">
-                    <span style="font-weight: bold; color: #25d366;">{from_user}</span>: <span style="color: #37474f;">{msg}</span>
-                </div>
-                """
-            self.chat_display.insertHtml(html)
+                if parts[0] == self.client.name:
+                    item = BubbleMessage(parts[2], parts[0], MessageType.Text, is_send=True)
+                else:
+                    item = BubbleMessage(parts[2], parts[0], MessageType.Text, is_send=False)
+            self.chat_display.addWidget(item)
         except Exception as e:
             print(f"显示消息出错: {e} {msg}")
 
@@ -356,3 +356,12 @@ def get_local_ipv4():
     except Exception as e:
         print(f"获取本地 IP 地址时出错: {e}")
         return None
+
+def clear_layout(layout):
+    while layout.count():
+        item = layout.takeAt(0)
+        widget = item.widget()
+        if widget is not None:
+            widget.setParent(None)
+        else:
+            clear_layout(item.layout())

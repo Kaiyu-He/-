@@ -75,9 +75,15 @@ class Ui_MainWindow(object):
         self.detail.setObjectName("detail")
         self.horizontalLayout_4.addWidget(self.detail)
         self.right_widge.addLayout(self.horizontalLayout_4)
-        self.chat_display = QtWidgets.QTextEdit(parent=self.chat_widget)
-        self.chat_display.setObjectName("chat_display")
-        self.right_widge.addWidget(self.chat_display)
+
+        self.chat_display_scroll = QtWidgets.QScrollArea(parent=self.chat_widget)
+        self.chat_display_scroll.setWidgetResizable(True)
+        self.chat_display_widget = QtWidgets.QWidget()
+        self.chat_display = QtWidgets.QVBoxLayout(self.chat_display_widget)
+        self.chat_display.setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
+        self.chat_display_scroll.setWidget(self.chat_display_widget)
+        self.right_widge.addWidget(self.chat_display_scroll)
+
         self.right_layout = QtWidgets.QHBoxLayout()
         self.right_layout.setObjectName("right_layout")
         self.emoji = QtWidgets.QPushButton(parent=self.chat_widget)

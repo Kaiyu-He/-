@@ -49,7 +49,8 @@ class Server:
         self.users: dict[str: User] = {}
         self.online: dict[str: bool] = {}
         self.history: dict[str: dict] = self.load_history()
-
+        for user_name, value in self.history.items():
+            self.online[user_name] = False
     def load_history(self):
         load_path = "./server_total_history_save.json"
         try:
