@@ -8,8 +8,62 @@
             "123": {
                 "msg": [],
                 "user": null
+            },
+            "": {
+                "msg": [],
+                "user": [
+                    "123"
+                ]
+            },
+            "111": {
+                "msg": [
+                    "message:hekaiyu/111/123123"
+                ],
+                "user": [
+                    "123",
+                    "hekaiyu"
+                ]
             }
         },
         "password": null
+    },
+    "": {
+        "type": "group_[]",
+        "users_list": [
+            "123"
+        ]
+    },
+    "hekaiyu": {
+        "type": "user",
+        "history": {
+            "deepseek": {
+                "msg": []
+            },
+            "123": {
+                "msg": [],
+                "user": null
+            },
+            "hekaiyu": {
+                "msg": [],
+                "user": null
+            },
+            "111": {
+                "msg": [
+                    "message:hekaiyu/111/123123"
+                ],
+                "user": [
+                    "123",
+                    "hekaiyu"
+                ]
+            }
+        },
+        "password": null
+    },
+    "111": {
+        "type": "group_[]",
+        "users_list": [
+            "123",
+            "hekaiyu"
+        ]
     }
 }

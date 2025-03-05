@@ -12,7 +12,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, QTimer, pyqtSignal, QObject
 from Client import Client
 
-from addfriend import AddFriendDialog, AddGroupFriendDialog
+from addfriend import AddFriendDialog, AddGroupFriend
 from ui.log_in import Ui_login
 from ui.chat import Ui_MainWindow as UI_chat
 from video import VideoAudioDialog
@@ -175,23 +175,26 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
 
     def add_group(self):
         """添加群聊"""
-        dialog = AddGroupFriendDialog(self, user=self.client.name)
-        # dialog.set_friends(self.online)
-        # if dialog.exec() == QDialog.DialogCode.Accepted:
-        group_name, selected_friends = dialog.get_selected_friends()
-        if self.client.name not in selected_friends:
-            selected_friends.append(self.client.name)
-        msg = f"add_group:{self.client.name}/{selected_friends}/{group_name}"
-        self.client.add_chat(group_name, selected_friends)
-        self.update_friends_list()
+        contacts = self.client.get_friends()
+        dialog = AddGroupFriend(self, contacts=contacts)
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            group_name = dialog.get_group_name()
+            if len(group_name) == 0:
+                return
+            selected_friends =dialog.get_selected_contacts()
+            if self.client.name not in selected_friends:
+                selected_friends.append(self.client.name)
+            msg = f"add_group:{self.client.name}/{selected_friends}/{group_name}"
+            self.client.add_chat(group_name, selected_friends)
+            self.update_friends_list()
 
-        self.selected_user = group_name
-        self.update_chat_display()
+            self.selected_user = group_name
+            self.update_chat_display()
 
-        items = self.user_list_widget.findItems(group_name, Qt.MatchFlag.MatchExactly)
-        if items:
-            self.user_list_widget.setCurrentItem(items[0])
-        self.client.send_msg(msg)
+            items = self.user_list_widget.findItems(group_name, Qt.MatchFlag.MatchExactly)
+            if items:
+                self.user_list_widget.setCurrentItem(items[0])
+            self.client.send_msg(msg)
 
     def add_friend(self):
         dialog = AddFriendDialog(self, user=self.client.name)
@@ -305,7 +308,9 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
     def update_chat_display(self):
         """更新聊天框"""
         text = self.selected_user
-        self.name_chat.setText(text)
+        self.name_chat.setText(f"{text}")
+        if self.client.friends[text]['user'] is not None:
+            self.name_chat.setText(f"{text}         群内用户:{self.client.friends[text]['user']}")
         if self.selected_user and self.client:
             messages = self.client.get_user_msg(self.selected_user)
             clear_layout(self.chat_display)
