@@ -12,7 +12,8 @@ import os
 os.chdir(os.path.dirname(os.path.dirname(__file__)))
 
 class Ui_MainWindow(object):
-    def setupUi(self, MainWindow):
+    def setupUi(self, MainWindow, name):
+        self.name = name
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(759, 502)
         self.chat_widget = QtWidgets.QWidget(parent=MainWindow)
@@ -147,7 +148,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "网络聊天室"))
+        MainWindow.setWindowTitle(_translate("MainWindow", f"网络聊天室——{self.name}"))
         self.chat_list.setText(_translate("MainWindow", "聊天列表"))
         self.add_friend_button.setText(_translate("MainWindow", "添加好友"))
         self.add_group_button.setText(_translate("MainWindow", "添加群聊"))

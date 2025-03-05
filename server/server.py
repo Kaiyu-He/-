@@ -31,7 +31,7 @@ def handle_users(server, user):
             msg_type, msg = msg.split(':', 1)
             print(f"收到用户信息 {user.addr}: 用户：{user.name}, 类型：{msg_type}, 内容：{msg}")
             if msg_type == 'message':
-                args = msg.split('/')
+                args = msg.split('/', 2)
                 if args[0] == args[1]:
                     continue
                 if args[1] == "deepseek":
@@ -59,6 +59,9 @@ def handle_users(server, user):
             elif msg_type == "video":
                 args = msg.split('/')
                 server.send_to_users(args[1], f"video:{msg}")
+            elif msg_type == "image":
+                args = msg.split('/')
+                server.send_to_users(args[1], f"image:{msg}")
         except Exception as e:
             print(f"Error with {user.addr}: {e}")
             break

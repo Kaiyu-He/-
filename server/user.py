@@ -13,6 +13,7 @@ class User:  # 单个用户连接
         self.conn = conn  # 连接对象
         self.addr = f"{addr[0]}:{addr[1]}"  # 客户端地址:端口
         self.name = None  # 用户名称
+        self.max_length = 2 ** 20
 
     def get_user_name(self) -> tuple:
         """
@@ -33,7 +34,7 @@ class User:  # 单个用户连接
         """
         从客户端接收消息
         """
-        msg = self.conn.recv(10240).decode('utf-8')
+        msg = self.conn.recv(self.max_length).decode('utf-8')
         return msg
 
     def close(self):
@@ -101,6 +102,7 @@ class Server:
         for sentence in history:
             message.append({"role": sentence.split(":", 1)[0], "content": sentence.split(":", 1)[1]})
         return message
+
     def add_deepseek_chat(self, user_name, deepseek_response):
         self.history[user_name]['history']['deepseek']['msg'].append(f"assistant:{deepseek_response}")
 

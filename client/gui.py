@@ -1,11 +1,13 @@
 import ast
 import json
+import os.path
 import socket
+import tempfile
 import threading
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QListWidget,
     QTextEdit, QMessageBox, QInputDialog, QDialog, QListWidget, QVBoxLayout, QHBoxLayout, QDialogButtonBox,
-    QListWidgetItem, QGraphicsDropShadowEffect
+    QListWidgetItem, QGraphicsDropShadowEffect, QFileDialog
 )
 from PyQt6.QtCore import Qt, QTimer, pyqtSignal, QObject
 from Client import Client
@@ -55,10 +57,9 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
                 raise ValueError(f"消息格式错误: {msg}")
             msg_type, msg = msg.split(':', 1)
             if msg_type == "message":
-                if '/' not in msg:
-                    raise ValueError("消息格式错误")
-                parts = msg.split('/')
-                if len(parts) != 3:
+                try:
+                    parts = msg.split('/', 2)
+                except:
                     raise ValueError("消息格式错误")
                 from_user, to_user, text = parts
                 if to_user == self.client.name:
@@ -131,7 +132,8 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
     def show_chat_interface(self):
         """显示聊天界面"""
         self.login_widget.hide()
-        self.setupUi(self)
+
+        self.setupUi(self, name=self.client.name)
 
         self.add_group_button.clicked.connect(self.add_group)
         self.user_list_widget.itemClicked.connect(self.on_user_select)
@@ -154,7 +156,7 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
         self.add_friend_button.clicked.connect(self.add_friend)
 
         self.video.clicked.connect(self.start_video)
-
+        self.image.clicked.connect(self.send_image)
         # 启动接收消息的线程
         self.receive_thread = threading.Thread(target=self.receive_msg)
         self.receive_thread.daemon = True
@@ -214,6 +216,27 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
                     self.client.send_msg(f"add_friend:{self.client.name}/{selected_friend}")
                 except Exception as e:
                     QMessageBox.critical(self, "错误", f"添加好友失败: {e}")
+
+    def send_image(self):
+        """发送图片"""
+        if self.selected_user:
+            # 打开文件选择对话框
+            file_path, _ = QFileDialog.getOpenFileName(self, "选择图片文件", "", "图片文件 (*.png *.jpg *.jpeg)")
+            if file_path:
+                try:
+                    # 读取图片文件内容
+                    with open(file_path, 'rb') as f:
+                        file_data = f.read()
+                    file_name = file_path.split('/')[-1]
+                    # 构造图片消息
+                    text = f"message:{self.client.name}/{self.selected_user}/<|image|>{file_data.decode('latin1')}<|end_image|>"
+                    self.client.send_msg(text)
+                    self.client.add_chat(self.selected_user)
+                    self.update_friends_list()
+                    self.client.add_msg(self.selected_user, text)
+                    self.update_chat_display()
+                except Exception as e:
+                    QMessageBox.critical(self, "错误", f"发送图片失败: {e}")
 
     def start_video(self):
         self.video.clicked.disconnect(self.start_video)
@@ -295,10 +318,29 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
         """添加聊天框信息"""
         try:
             msg_type, msg = msg.split(':', 1)
-            msg = msg.split('/')
-            self.chat_display.append(f"{msg[0]}: {msg[2]}")
-        except:
-            return
+            parts = msg.split('/', 2)
+            from_user, _, content = parts
+            if "<|image|>" in content and "<|end_image|>" in content:
+                # 处理图片消息
+                start_index = content.index("<|image|>") + len("<|image|>")
+                end_index = content.index("<|end_image|>")
+                image_data = content[start_index:end_index].encode('latin1')
+                # 创建临时文件保存图片
+                with tempfile.NamedTemporaryFile(delete=False, suffix='.png') as temp_file:
+                    temp_file.write(image_data)
+                    temp_file_path = temp_file.name
+                # 在 chat_display 中插入图片
+                html = f'<p>{from_user}:<img src="{temp_file_path}" width="100"></p>'
+            else:
+                html = f"""
+                <div style="background-color: #dcf8c6; border-radius: 10px 10px 0 10px; padding: 10px; margin-bottom: 10px; max-width: 70%; float: right; clear: both;">
+                    <span style="font-weight: bold; color: #25d366;">{from_user}</span>: <span style="color: #37474f;">{msg}</span>
+                </div>
+                """
+            self.chat_display.insertHtml(html)
+        except Exception as e:
+            print(f"显示消息出错: {e} {msg}")
+
 
 
 def get_local_ipv4():

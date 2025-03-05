@@ -10,7 +10,7 @@ class Client:  # 客户端
         self.name = name  # 用户名称
         self.user_name(name)
         self.friends = {}
-        self.max_length = 2 ** 16
+        self.max_length = 2 ** 20
     def get_chats(self) -> list:
         users = []
         for user, msgs in self.friends.items():
