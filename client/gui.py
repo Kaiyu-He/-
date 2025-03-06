@@ -18,7 +18,7 @@ from ui.log_in import Ui_login
 from ui.chat import Ui_MainWindow as UI_chat
 from video import VideoAudioDialog
 from Bubble import BubbleMessage, MessageType
-
+from emoji import EmojiFloatWindow
 
 class TextEditWithEnter(QTextEdit):
     def __init__(self, process_enter, parent=None):
@@ -49,6 +49,7 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
         self.online = {}
         self.current_chat_box = None
         self.selected_user = None
+        self.show_emoji = False
         self.video_port = 12654
         self.init_ui()
         self.message_received.connect(self.handle_message)
@@ -156,12 +157,16 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
         self.send_button.clicked.connect(self.send_msg)
         self.add_friend_button.clicked.connect(self.add_friend)
 
+        self.emoji_window = EmojiFloatWindow(self.input_field)
+        self.emoji.clicked.connect(self.send_emoji)
+
         self.video.clicked.connect(self.start_video)
         self.image.clicked.connect(self.send_image)
         # 启动接收消息的线程
         self.receive_thread = threading.Thread(target=self.receive_msg)
         self.receive_thread.daemon = True
         self.receive_thread.start()
+
 
     def send_msg(self):
         """发送消息"""
@@ -299,6 +304,32 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
             except:
                 continue
 
+    def moveEvent(self, event):
+        # 获取按钮的新位置
+        try:
+            position = self.emoji.mapToGlobal(self.emoji.pos())
+            # 判断位置是否改变
+            if position != self.emoji_position:
+                self.emoji_position= position
+                button_pos = self.emoji_position
+                x = button_pos.x() - 270
+                y = button_pos.y() - 505
+                # 设置浮窗的位置
+                self.emoji_window.move(x, y)
+        except:
+            print("move")
+        super().moveEvent(event)
+    def send_emoji(self):
+        button_pos = self.emoji.mapToGlobal(self.emoji.pos())
+        x = button_pos.x() - 270
+        y = button_pos.y() - 505
+        self.emoji_window.move(x, y)
+        if self.show_emoji:
+            self.emoji_window.hide()
+            self.show_emoji = False
+        else:
+            self.emoji_window.show()
+            self.show_emoji = True
     def on_user_select(self, item):
         """切换用户时更新聊天框"""
         # 获取选中的 QListWidgetItem
@@ -353,6 +384,14 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
         except Exception as e:
             print(f"显示消息出错: {e} {msg}")
 
+    def closeEvent(self, event):
+        """重写关闭事件，确保程序正确终止"""
+        if self.client:
+            try:
+                self.client.close()  # 关闭客户端连接
+            except Exception as e:
+                print(f"关闭客户端连接时出错: {e}")
+        event.accept()  # 接受关闭事件
 
 def get_local_ipv4():
     try:

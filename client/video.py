@@ -177,3 +177,4 @@ class VideoAudioDialog(QDialog, Ui_Dialog):
         # 关闭对话框
         super().close()
 
+
