@@ -60,7 +60,7 @@ def handle_users(server, user):
                 args = msg.split('/')
                 server.send_to_users(args[1], f"video:{msg}")
             elif msg_type == "image":
-                args = msg.split('/')
+                args = msg.split('/', 2)
                 server.send_to_users(args[1], f"image:{msg}")
         except Exception as e:
             print(f"Error with {user.addr}: {e}")

@@ -244,6 +244,7 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
                     self.update_friends_list()
                     self.client.add_msg(self.selected_user, text)
                     self.update_chat_display()
+
                 except Exception as e:
                     QMessageBox.critical(self, "错误", f"发送图片失败: {e}")
 

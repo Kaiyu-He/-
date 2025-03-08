@@ -51,6 +51,7 @@ class Server:
         self.history: dict[str: dict] = self.load_history()
         for user_name, value in self.history.items():
             self.online[user_name] = False
+
     def load_history(self):
         load_path = "./server_total_history_save.json"
         try:
@@ -91,10 +92,11 @@ class Server:
     def add_friend(self, from_user, to_user):
         if from_user not in self.history:
             ValueError("用户不存在")
-        self.history[from_user]['history'][to_user] = {
-            "msg": [],
-            "user": None
-        }
+        if to_user not in self.history[from_user]['history']:
+            self.history[from_user]['history'][to_user] = {
+                "msg": [],
+                "user": None
+            }
 
     def get_deepseek_chat(self, user_name, message):
         self.history[user_name]['history']['deepseek']['msg'].append(f"user:{message}")
@@ -108,20 +110,25 @@ class Server:
         self.history[user_name]['history']['deepseek']['msg'].append(f"assistant:{deepseek_response}")
 
     def add_chat(self, from_user: str, to_user_or_group, message):
-        if self.history[to_user_or_group]['type'] == "user":
-            if to_user_or_group not in self.history[from_user]:
+        try:
+            if to_user_or_group.find("<|group|>") == -1:
+                if to_user_or_group not in self.history[from_user]:
+                    self.add_friend(from_user, to_user_or_group)
+                self.send_to_users(to_user_or_group, message)
                 self.add_friend(from_user, to_user_or_group)
-            self.send_to_users(to_user_or_group, message)
-            self.history[from_user]['history'][to_user_or_group]["msg"].append(message)
-            self.history[to_user_or_group]['history'][from_user]["msg"].append(message)
-        else:
-            for group_user in self.history[to_user_or_group]["users_list"]:
-                if group_user not in self.history:
-                    continue
-                self.history[group_user]['history'][to_user_or_group]['msg'].append(message)
-                if group_user == from_user:
-                    continue
-                self.send_to_users(group_user, message)
+                self.history[from_user]['history'][to_user_or_group]["msg"].append(message)
+                self.add_friend(from_user, to_user_or_group)
+                self.history[to_user_or_group]['history'][from_user]["msg"].append(message)
+            else:
+                for group_user in self.history[to_user_or_group]["users_list"]:
+                    if group_user not in self.history:
+                        continue
+                    self.history[group_user]['history'][to_user_or_group]['msg'].append(message)
+                    if group_user == from_user:
+                        continue
+                    self.send_to_users(group_user, message)
+        except Exception as e:
+            print("发送消息错误", e)
 
     def add_group(self, from_user, group_name, users_list):
         group_name = group_name

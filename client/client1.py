@@ -24,7 +24,7 @@ def get_local_ipv4():
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     # host = "10.39.43.221"
-    host = "222.199.216.210"
+    host = "192.168.137.233"
     port = 1234
     window = ChatClient(host, port)
     window.show()
