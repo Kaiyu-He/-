@@ -310,7 +310,7 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
             position = self.emoji.mapToGlobal(self.emoji.pos())
             # 判断位置是否改变
             if position != self.emoji_position:
-                self.emoji_position= position
+                self.emoji_position = position
                 button_pos = self.emoji_position
                 x = button_pos.x() - 270
                 y = button_pos.y() - 505
@@ -324,6 +324,7 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
         x = button_pos.x() - 270
         y = button_pos.y() - 505
         self.emoji_window.move(x, y)
+        self.emoji_position = self.emoji.mapToGlobal(self.emoji.pos())
         if self.show_emoji:
             self.emoji_window.hide()
             self.show_emoji = False

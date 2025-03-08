@@ -28,11 +28,22 @@ class Client:  # 客户端
         return users
 
     def get_user_msg(self, name) -> dict:
+        """
+        获取消息框所有信息
+        :param name:
+        :return:
+        """
         if name not in self.friends:
             self.add_chat(name)
         return self.friends[name]['msg']
 
     def add_chat(self, name, user: Union[str, list] = None):
+        """
+        新建一个空的聊天
+        :param name:
+        :param user:
+        :return:
+        """
         if name not in self.friends:
             self.friends[name] = {
                 "msg": [],
@@ -42,6 +53,12 @@ class Client:  # 客户端
             self.friends[name]['user'] = user
 
     def add_msg(self, name: str, msg: str):
+        """
+        加入单条聊天消息
+        :param name:
+        :param msg:
+        :return:
+        """
         if name not in self.friends:
             self.add_chat(name)
         self.friends[name]['msg'].append(msg)
@@ -52,14 +69,14 @@ class Client:  # 客户端
 
     def send_msg(self, msg: str):
         """
-        发送消息
+        发送消息给服务器端
         :param msg: 要发送的消息（字符串）
         """
         self.conn.send(msg.encode('utf-8'))
 
     def read(self) -> str:
         """
-        从客户端接收消息
+        从服务器端接收消息
         """
         msg = self.conn.recv(self.max_length).decode('utf-8')
         return msg
