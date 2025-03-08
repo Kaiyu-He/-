@@ -186,9 +186,10 @@ class ChatClient(QMainWindow, Ui_login, UI_chat):
         contacts = self.client.get_friends()
         dialog = AddGroupFriend(self, contacts=contacts)
         if dialog.exec() == QDialog.DialogCode.Accepted:
-            group_name = dialog.get_group_name() + "<|group|>"
+            group_name = dialog.get_group_name()
             if len(group_name) == 0:
                 return
+            group_name = group_name + "<|group|>"
             selected_friends = dialog.get_selected_contacts()
             if self.client.name not in selected_friends:
                 selected_friends.append(self.client.name)

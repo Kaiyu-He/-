@@ -1,8 +1,9 @@
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QWidget, QLabel, QLineEdit, QDialog, QListWidget, QVBoxLayout, QHBoxLayout, \
-    QDialogButtonBox, QListWidgetItem, QAbstractItemView, QTableWidgetItem, QHeaderView
+    QDialogButtonBox, QListWidgetItem, QAbstractItemView, QTableWidgetItem, QHeaderView, QMessageBox
 
-from  ui.GroupChat import Ui_Dialog
+from ui.GroupChat import Ui_Dialog
+
 
 class AddGroupFriend(QDialog):
     """自定义添加好友对话框，带搜索框"""
@@ -24,6 +25,7 @@ class AddGroupFriend(QDialog):
 
         self.ui.tableWidgetContacts.setSelectionMode(QAbstractItemView.SelectionMode.MultiSelection)
         self.ui.tableWidgetContacts.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.ui.tableWidgetContacts.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
 
         self.ui.lineEditSearch.textChanged.connect(self.search_contacts)
         self.ui.lineEditGroupName.textChanged.connect(self.update_group_name)
@@ -36,6 +38,7 @@ class AddGroupFriend(QDialog):
         for row, contact in enumerate(self.contacts):
             item = QTableWidgetItem(contact)
             self.ui.tableWidgetContacts.setItem(row, 0, item)
+
     def search_contacts(self):
         """搜索联系人，在 QTableWidget 里筛选匹配项"""
         search_text = self.ui.lineEditSearch.text().strip().lower()  # 获取搜索框内容（忽略大小写）
@@ -47,12 +50,19 @@ class AddGroupFriend(QDialog):
                 contact_name = item.text().strip().lower()
                 match = search_text in contact_name  # 检查是否匹配搜索内容
                 self.ui.tableWidgetContacts.setRowHidden(row, not match)  # 隐藏不匹配的行
+
     def CancelWindow(self):
-        self.accept()
+        if ' ' in self.group_name or len(self.group_name) == 0:
+            QMessageBox.warning(self, "错误", "用户名不能包含空格或为空，请重新输入。")
+        else:
+            self.accept()
+
     def update_group_name(self):
         self.group_name = self.ui.lineEditGroupName.text()
+
     def get_group_name(self):
         return self.group_name
+
     def get_selected_contacts(self):
         """获取选中的联系人"""
         selected_contacts = []
