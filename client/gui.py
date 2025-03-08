@@ -11,7 +11,7 @@ from PyQt6.QtWidgets import (
     QListWidgetItem, QGraphicsDropShadowEffect, QFileDialog
 )
 from PyQt6.QtCore import Qt, QTimer, pyqtSignal, QObject
-from Client import Client
+from client import Client
 
 from addfriend import AddFriendDialog, AddGroupFriend
 from ui.log_in import Ui_login
